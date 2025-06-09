@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project: Puppy 12.06</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* CSS để tạo giao diện đẹp */
+        body, html {
+            background-color: #1a001a;
+            color: #ff69b4;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* --- MÀN HÌNH CHỜ (INTRO) --- */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a001a;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease-out; /* Hiệu ứng mờ dần khi chuyển cảnh */
+        }
+        
+        #gift-box-image {
+            width: 250px;
+            max-width: 60vw;
+            cursor: pointer;
+            animation: shake 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-4deg) scale(1.02); }
+            75% { transform: rotate(4deg) scale(1.02); }
+        }
+
+        #prompt-text {
+            color: #fff;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 20px;
+            text-shadow: 0 0 10px #ff69b4;
+            animation: fadeInText 2s ease-in-out;
+            user-select: none;
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        #countdown {
+            font-size: clamp(150px, 40vw, 300px);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px #ff69b4, 0 0 40px #ff69b4;
+            animation: pulse-countdown 1s infinite;
+            position: absolute;
+            display: none; /* Ban đầu ẩn */
+        }
+
+        @keyframes pulse-countdown {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Ban đầu ẩn đi */
+        }
+
+        /* --- NỘI DUNG CHÍNH --- */
+        #main-content {
+            display: none; /* Ban đầu ẩn toàn bộ nội dung chính */
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 1s ease-in;
+        }
+
+        #hearts-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; 
+        }
+
+        #myCanvasContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            z-index: 5;
+        }
+        #myCanvasContainer:active {
+            cursor: grabbing;
+        }
+        
+        #myCanvas {
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 800px;
+            position: relative; 
+            z-index: 12;
+        }
+
+        #center-image {
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+        }
+        #center-image img {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        #tags { display: none; }
+    </style>
+</head>
+<body>
+    
+    <audio id="countdown-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-hard-pop-click-2364.mp3" preload="auto"></audio>
+    <audio id="firework-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-short-explosion-1694.mp3" preload="auto"></audio>
+
+    <!-- Màn hình chờ -->
+    <div id="intro-screen">
+        <img id="gift-box-image" src="https://i.ibb.co/Bh6rhww/Giftbox.png" alt="Hộp quà">
+        <div id="prompt-text">Hộp quà đang rung rinh chờ được mở đó~ 🎁 Chạm nhẹ cái nà 😉💕</div>
+        <div id="countdown"></div>
+        <canvas id="fireworks-canvas"></canvas>
+    </div>
+
+    <!-- Nội dung chính -->
+    <div id="main-content">
+        <div id="youtube-player" style="display: none;"></div>
+        <canvas id="hearts-canvas"></canvas>
+        <div id="myCanvasContainer">
+            <div id="center-image">
+                 <img src="https://i.ibb.co/Z1cvvHhm/Chat-GPT-Image-15-22-45-5-thg-6-2025.png" alt="User Image">
+            </div>
+            <canvas width="800" height="800" id="myCanvas">
+                <p>Rất tiếc, trình duyệt của bạn không hỗ trợ HTML5 canvas.</p>
+            </canvas>
+        </div>
+        <div id="tags">
+            <ul>
+                <li><a href="#">我爱你</a></li><li><a href="#">I love you</a></li><li><a href="#">唯爱你至死不渝</a></li><li><a href="#">520快乐</a></li><li><a href="#">Gamer</a></li><li><a href="#">Hacker</a></li><li><a href="#">Code</a></li><li><a href="#">Design</a></li><li><a href="#">3D</a></li><li><a href="#">JavaScript</a></li><li><a href="#">HTML5</a></li><li><a href="#">CSS3</a></li><li><a href="#">Creative</a></li><li><a href="#">Art</a></li><li><a href="#">Inspiration</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Các thư viện -->
+    <script src="https://www.goat1000.com/tagcanvas.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <!-- SỬA LỖI: Di chuyển toàn bộ script xuống cuối body và cấu trúc lại để chạy ổn định hơn -->
+    <script>
+        // Sử dụng DOMContentLoaded để đảm bảo tất cả HTML đã được tải trước khi chạy script
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            let ytPlayer;
+
+            // Hàm khởi tạo YouTube Player
+            function initializeYouTubePlayer() {
+                if (typeof YT !== 'undefined' && YT.Player) {
+                    ytPlayer = new YT.Player('youtube-player', {
+                        height: '0', width: '0', videoId: 'sSt1y8s9n6Y',
+                        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'sSt1y8s9n6Y' }
+                    });
+                } else {
+                     // Nếu API chưa sẵn sàng, thử lại sau một chút
+                    setTimeout(initializeYouTubePlayer, 100);
+                }
+            }
+
+            // Gọi hàm khởi tạo
+            initializeYouTubePlayer();
+            
+            // Hàm chơi âm thanh an toàn
+            function playSound(audioElement) {
+                if (audioElement && typeof audioElement.play === 'function') {
+                    audioElement.currentTime = 0;
+                    const playPromise = audioElement.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.error("Lỗi phát âm thanh:", error);
+                        });
+                    }
+                }
+            }
+
+            // Lấy các phần tử DOM
+            const introScreen = document.getElementById('intro-screen');
+            const mainContent = document.getElementById('main-content');
+            const giftBoxImage = document.getElementById('gift-box-image');
+            const promptText = document.getElementById('prompt-text');
+            const countdownEl = document.getElementById('countdown');
+            const countdownSound = document.getElementById('countdown-sound');
+            const fireworkSound = document.getElementById('firework-sound');
+            const myCanvas = document.getElementById('myCanvas');
+            const tagsList = document.getElementById('tags');
+
+            // Kiểm tra các phần tử quan trọng
+            if (!introScreen || !mainContent || !giftBoxImage || !myCanvas || !tagsList) {
+                console.error("Thiếu một hoặc nhiều phần tử HTML quan trọng. Script sẽ không chạy.");
+                document.body.innerHTML = '<h1>Lỗi tải trang. Vui lòng thử lại.</h1>';
+                return;
+            }
+
+            let boxClicked = false;
+
+            // Xử lý sự kiện mở quà
+            giftBoxImage.addEventListener('mousedown', () => {
+                if (boxClicked) return;
+                boxClicked = true;
+                giftBoxImage.style.animation = 'none';
+                giftBoxImage.style.transition = "opacity 0.5s, transform 0.5s";
+                promptText.style.transition = "opacity 0.5s";
+                giftBoxImage.style.transform = 'scale(1.2)';
+                giftBoxImage.style.opacity = '0';
+                promptText.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (giftBoxImage) giftBoxImage.style.display = 'none';
+                    if (promptText) promptText.style.display = 'none';
+                    startCountdown();
+                }, 500);
+            });
+
+            // Hàm đếm ngược
+            function startCountdown() {
+                if (!countdownEl || !countdownSound) return;
+                countdownEl.style.display = 'block';
+                let count = 3;
+                countdownEl.textContent = count;
+                playSound(countdownSound); 
+
+                const countdownInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownEl.textContent = count;
+                        playSound(countdownSound);
+                    } else {
+                        clearInterval(countdownInterval);
+                        countdownEl.style.display = 'none';
+                        startFireworks();
+                    }
+                }, 1000);
+            }
+
+            // Hàm pháo hoa
+            function startFireworks() {
+                const fireworksCanvas = document.getElementById('fireworks-canvas');
+                if (!fireworksCanvas) return;
+
+                setTimeout(() => {
+                    clearInterval(launchInterval);
+                    introScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        introScreen.style.display = 'none';
+                        mainContent.style.display = 'block';
+                        requestAnimationFrame(() => mainContent.style.opacity = '1');
+                        startMainApp();
+                    }, 1500);
+                }, 4000); 
+                
+                fireworksCanvas.style.display = 'block';
+                const f_ctx = fireworksCanvas.getContext('2d');
+                fireworksCanvas.width = window.innerWidth;
+                fireworksCanvas.height = window.innerHeight;
+                let fireworks = [], particles = [], currentHue = Math.random() * 360;
+                
+                const PARTICLE_COUNT = 300;
+                const LAUNCH_INTERVAL = 400;
+
+                class Firework { 
+                    constructor() { this.x = Math.random() * fireworksCanvas.width; this.y = fireworksCanvas.height; this.sx = this.x; this.sy = this.y; this.tx = Math.random() * fireworksCanvas.width; this.ty = Math.random() * fireworksCanvas.height / 2; this.distanceToTarget = Math.hypot(this.tx - this.sx, this.ty - this.sy); this.distanceTraveled = 0; this.angle = Math.atan2(this.ty - this.sy, this.tx - this.sx); this.speed = 2; this.acceleration = 1.05; this.brightness = Math.random() * 30 + 60; }
+                    update() { this.speed *= this.acceleration; const vx = Math.cos(this.angle) * this.speed, vy = Math.sin(this.angle) * this.speed; this.distanceTraveled = Math.hypot(this.x - this.sx, this.y - this.sy); if (this.distanceTraveled >= this.distanceToTarget) { createParticles(this.tx, this.ty); if (fireworkSound) { playSound(fireworkSound.cloneNode(true)); } return true; } else { this.x += vx; this.y += vy; return false; } }
+                    draw() { f_ctx.beginPath(); f_ctx.moveTo(this.sx, this.sy); f_ctx.lineTo(this.x, this.y); f_ctx.strokeStyle = `hsl(${currentHue}, 100%, ${this.brightness}%)`; f_ctx.lineWidth = 3; f_ctx.stroke(); }
+                }
+                class Particle { 
+                    constructor(x, y) { this.x = x; this.y = y; this.angle = Math.random() * Math.PI * 2; this.speed = Math.random() * 12 + 1; this.friction = 0.96; this.gravity = 1.5; this.hue = currentHue; this.brightness = Math.random() * 30 + 70; this.alpha = 1; this.decay = Math.random() * 0.03 + 0.01; }
+                    update() { this.speed *= this.friction; this.x += Math.cos(this.angle) * this.speed; this.y += Math.sin(this.angle) * this.speed + this.gravity; this.alpha -= this.decay; return this.alpha <= this.decay; }
+                    draw() { f_ctx.beginPath(); f_ctx.arc(this.x, this.y, 3, 0, Math.PI * 2, false); f_ctx.fillStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`; f_ctx.fill(); }
+                }
+                function createParticles(x, y) { for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle(x, y)); }
+                let launchInterval = setInterval(() => fireworks.push(new Firework()), LAUNCH_INTERVAL);
+                
+                function fireworksLoop() {
+                    requestAnimationFrame(fireworksLoop);
+                    currentHue += 0.5;
+                    f_ctx.globalCompositeOperation = 'destination-out';
+                    f_ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                    f_ctx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+                    f_ctx.globalCompositeOperation = 'lighter';
+                    f_ctx.shadowBlur = 20;
+                    f_ctx.shadowColor = 'white';
+                    fireworks = fireworks.filter(fw => !fw.update());
+                    particles = particles.filter(p => !p.update());
+                    fireworks.forEach(fw => fw.draw());
+                    particles.forEach(p => p.draw());
+                }
+                fireworksLoop();
+            }
+
+            // Hàm chạy ứng dụng chính
+            function startMainApp() {
+                if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                    ytPlayer.playVideo();
+                }
+                
+                // Khởi tạo TagCanvas
+                try {
+                    if (typeof TagCanvas !== 'undefined') {
+                        TagCanvas.Start('myCanvas', 'tags', {
+                            textColour: '#ff69b4',
+                            outlineColour: '#ff00ff',
+                            reverse: true,
+                            depth: 0.8,
+                            maxSpeed: 0.05,
+                            textHeight: 25,
+                            shadow: '#ff69b4',
+                            shadowBlur: 10,
+                            dragControl: true,
+                            initial: [0.1, -0.1],
+                            shape: 'heart'
+                        });
+                        const canvasContainer = document.getElementById('myCanvasContainer');
+                        canvasContainer.addEventListener('mousedown', () => TagCanvas.Pause('myCanvas'));
+                        document.addEventListener('mouseup', () => TagCanvas.Resume('myCanvas'));
+                    } else {
+                        console.error("Thư viện TagCanvas chưa được tải.");
+                    }
+                } catch(e) {
+                    console.error("Lỗi khởi tạo TagCanvas:", e);
+                    document.getElementById('myCanvasContainer').innerHTML = '<p style="color: white;">Lỗi: Không thể tải hiệu ứng chữ.</p>';
+                }
+
+                // Khởi tạo hiệu ứng trái tim rơi
+                setupHeartsCanvas();
+                animateHearts();
+            }
+
+            const heartsCanvas = document.getElementById('hearts-canvas');
+            const heartsCtx = heartsCanvas.getContext('2d');
+            let hearts = [];
+            const numHearts = 50;
+
+            function drawHeart(x, y, s, r) { heartsCtx.save(); heartsCtx.translate(x, y); heartsCtx.rotate(r); heartsCtx.beginPath(); heartsCtx.moveTo(0, s * 0.3); heartsCtx.bezierCurveTo(0, 0, -s * 0.5, 0, -s * 0.5, s * 0.3); heartsCtx.bezierCurveTo(-s * 0.5, s * 0.7, 0, s * 0.7, 0, s); heartsCtx.bezierCurveTo(0, s * 0.7, s * 0.5, s * 0.7, s * 0.5, s * 0.3); heartsCtx.bezierCurveTo(s * 0.5, 0, 0, 0, 0, s * 0.3); heartsCtx.closePath(); heartsCtx.fillStyle = 'rgba(255,182,193,0.8)'; heartsCtx.shadowColor = 'rgba(255,105,180,0.7)'; heartsCtx.shadowBlur = 15; heartsCtx.fill(); heartsCtx.restore(); }
+            class Heart { constructor() { this.reset(); this.y = Math.random() * heartsCanvas.height; } reset() { this.x = Math.random() * heartsCanvas.width; this.y = 0 - Math.random() * 50; this.size = Math.random() * 10 + 5; this.speed = Math.random() * 1 + 0.5; this.rotation = Math.random() * Math.PI * 2; this.rotationSpeed = (Math.random() - 0.5) * 0.02; } update() { this.y += this.speed; this.rotation += this.rotationSpeed; if (this.y > heartsCanvas.height + this.size) this.reset(); drawHeart(this.x, this.y, this.size, this.rotation); } }
+            
+            function initHearts() { hearts = []; for (let i = 0; i < numHearts; i++) hearts.push(new Heart()); }
+            function animateHearts() { requestAnimationFrame(animateHearts); heartsCtx.clearRect(0, 0, heartsCanvas.width, heartsCanvas.height); hearts.forEach(h => h.update()); }
+            function setupHeartsCanvas() { heartsCanvas.width = window.innerWidth; heartsCanvas.height = window.innerHeight; initHearts(); }
+            
+            window.addEventListener('resize', () => { 
+                if (typeof TagCanvas !== 'undefined') { 
+                    try { TagCanvas.Resize('myCanvas'); } catch(e) {} 
+                } 
+                setupHeartsCanvas();
+            });
+        });
+    </script>
+</body>
+</html>
