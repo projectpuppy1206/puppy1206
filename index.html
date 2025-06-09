@@ -123,6 +123,8 @@
             max-height: 800px;
             position: relative; 
             z-index: 12;
+            /* THAY ĐỔI: Thêm transition cho hiệu ứng mờ dần */
+            transition: opacity 0.6s ease-in-out;
         }
 
         #center-image {
@@ -200,7 +202,8 @@
                     const playPromise = audioElement.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(error => {
-                            console.error("Lỗi phát âm thanh:", error);
+                            // Không cần hiển thị lỗi ra console để tránh gây nhiễu
+                            // console.error("Lỗi phát âm thanh:", error);
                         });
                     }
                 }
@@ -223,9 +226,21 @@
             }
 
             let boxClicked = false;
+            let audioUnlocked = false; // Biến để kiểm tra đã mở khóa âm thanh chưa
 
             giftBoxImage.addEventListener('mousedown', () => {
                 if (boxClicked) return;
+
+                // SỬA LỖI: Mở khóa âm thanh trong lần tương tác đầu tiên của người dùng
+                if (!audioUnlocked) {
+                    // Chạy và dừng ngay lập tức các file âm thanh để trình duyệt cho phép phát về sau
+                    countdownSound.play().catch(()=>{});
+                    countdownSound.pause();
+                    fireworkSound.play().catch(()=>{});
+                    fireworkSound.pause();
+                    audioUnlocked = true;
+                }
+
                 boxClicked = true;
                 giftBoxImage.style.animation = 'none';
                 giftBoxImage.style.transition = "opacity 0.5s, transform 0.5s";
@@ -265,7 +280,6 @@
                 const fireworksCanvas = document.getElementById('fireworks-canvas');
                 if (!fireworksCanvas) return;
 
-                // TỐI ƯU: Giảm thời gian pháo hoa
                 setTimeout(() => {
                     clearInterval(launchInterval);
                     introScreen.style.opacity = '0';
@@ -275,7 +289,7 @@
                         requestAnimationFrame(() => mainContent.style.opacity = '1');
                         startMainApp();
                     }, 1500);
-                }, 3500); // Giảm từ 4000 xuống 3500
+                }, 3500); 
                 
                 fireworksCanvas.style.display = 'block';
                 const f_ctx = fireworksCanvas.getContext('2d');
@@ -283,9 +297,8 @@
                 fireworksCanvas.height = window.innerHeight;
                 let fireworks = [], particles = [], currentHue = Math.random() * 360;
                 
-                // TỐI ƯU: Giảm số lượng hạt pháo hoa
-                const PARTICLE_COUNT = 150; // Giảm từ 300 xuống 150
-                const LAUNCH_INTERVAL = 500; // Tăng khoảng cách giữa các lần bắn
+                const PARTICLE_COUNT = 150; 
+                const LAUNCH_INTERVAL = 500;
 
                 class Firework { 
                     constructor() { this.x = Math.random() * fireworksCanvas.width; this.y = fireworksCanvas.height; this.sx = this.x; this.sy = this.y; this.tx = Math.random() * fireworksCanvas.width; this.ty = Math.random() * fireworksCanvas.height / 2; this.distanceToTarget = Math.hypot(this.tx - this.sx, this.ty - this.sy); this.distanceTraveled = 0; this.angle = Math.atan2(this.ty - this.sy, this.tx - this.sx); this.speed = 2; this.acceleration = 1.05; this.brightness = Math.random() * 30 + 60; }
@@ -324,22 +337,52 @@
                 
                 try {
                     if (typeof TagCanvas !== 'undefined') {
-                        TagCanvas.Start('myCanvas', 'tags', {
-                            textColour: '#ff69b4',
-                            outlineColour: '#ff00ff',
+                        const canvasId = 'myCanvas';
+                        const tagsId = 'tags';
+                        const myCanvasElement = document.getElementById(canvasId);
+
+                        const colors = [
+                            { text: '#ff69b4', outline: '#ff00ff' }, 
+                            { text: '#00FFFF', outline: '#00BFFF' }, 
+                            { text: '#FFFFFF', outline: '#CCCCCC' },
+                            { text: '#66FF66', outline: '#008000' }
+                        ];
+                        let colorIndex = 0;
+                        
+                        const getOptions = () => ({
+                            textColour: colors[colorIndex].text,
+                            outlineColour: colors[colorIndex].outline,
+                            shadow: colors[colorIndex].text,
                             reverse: true,
                             depth: 0.8,
                             maxSpeed: 0.05,
                             textHeight: 25,
-                            shadow: '#ff69b4',
                             shadowBlur: 10,
                             dragControl: true,
                             initial: [0.1, -0.1],
                             shape: 'heart'
                         });
+
+                        TagCanvas.Start(canvasId, tagsId, getOptions());
+
                         const canvasContainer = document.getElementById('myCanvasContainer');
-                        canvasContainer.addEventListener('mousedown', () => TagCanvas.Pause('myCanvas'));
-                        document.addEventListener('mouseup', () => TagCanvas.Resume('myCanvas'));
+                        canvasContainer.addEventListener('mousedown', () => TagCanvas.Pause(canvasId));
+                        document.addEventListener('mouseup', () => TagCanvas.Resume(canvasId));
+
+                        setInterval(() => {
+                            myCanvasElement.style.opacity = 0;
+                            
+                            setTimeout(() => {
+                                try {
+                                    colorIndex = (colorIndex + 1) % colors.length;
+                                    TagCanvas.Start(canvasId, tagsId, getOptions());
+                                    myCanvasElement.style.opacity = 1;
+                                } catch (e) {
+                                    console.error("Lỗi khi khởi động lại TagCanvas:", e);
+                                }
+                            }, 600);
+                        }, 7000); 
+
                     } else {
                         console.error("Thư viện TagCanvas chưa được tải.");
                     }
@@ -354,8 +397,7 @@
             const heartsCanvas = document.getElementById('hearts-canvas');
             const heartsCtx = heartsCanvas.getContext('2d');
             let hearts = [];
-            // TỐI ƯU: Giảm số lượng trái tim
-            const numHearts = 30; // Giảm từ 50 xuống 30
+            const numHearts = 30;
 
             function drawHeart(x, y, s, r) { heartsCtx.save(); heartsCtx.translate(x, y); heartsCtx.rotate(r); heartsCtx.beginPath(); heartsCtx.moveTo(0, s * 0.3); heartsCtx.bezierCurveTo(0, 0, -s * 0.5, 0, -s * 0.5, s * 0.3); heartsCtx.bezierCurveTo(-s * 0.5, s * 0.7, 0, s * 0.7, 0, s); heartsCtx.bezierCurveTo(0, s * 0.7, s * 0.5, s * 0.7, s * 0.5, s * 0.3); heartsCtx.bezierCurveTo(s * 0.5, 0, 0, 0, 0, s * 0.3); heartsCtx.closePath(); heartsCtx.fillStyle = 'rgba(255,182,193,0.8)'; heartsCtx.shadowColor = 'rgba(255,105,180,0.7)'; heartsCtx.shadowBlur = 15; heartsCtx.fill(); heartsCtx.restore(); }
             class Heart { constructor() { this.reset(); this.y = Math.random() * heartsCanvas.height; } reset() { this.x = Math.random() * heartsCanvas.width; this.y = 0 - Math.random() * 50; this.size = Math.random() * 10 + 5; this.speed = Math.random() * 1 + 0.5; this.rotation = Math.random() * Math.PI * 2; this.rotationSpeed = (Math.random() - 0.5) * 0.02; } update() { this.y += this.speed; this.rotation += this.rotationSpeed; if (this.y > heartsCanvas.height + this.size) this.reset(); drawHeart(this.x, this.y, this.size, this.rotation); } }
