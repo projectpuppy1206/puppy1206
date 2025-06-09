@@ -43,6 +43,25 @@
             25% { transform: rotate(-4deg) scale(1.02); }
             75% { transform: rotate(4deg) scale(1.02); }
         }
+        
+        /* CSS cho nút bật âm thanh mới */
+        #unmute-button {
+            background-color: #ff69b4;
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, opacity 0.5s ease-out;
+            box-shadow: 0 0 20px #ff69b4;
+            margin-top: 25px; /* Thêm khoảng cách với dòng text ở trên */
+        }
+        #unmute-button:hover {
+            transform: scale(1.05);
+            background-color: #ff85c1;
+        }
 
         #prompt-text {
             color: #fff;
@@ -123,7 +142,6 @@
             max-height: 800px;
             position: relative; 
             z-index: 12;
-            /* THAY ĐỔI: Thêm transition cho hiệu ứng mờ dần */
             transition: opacity 0.6s ease-in-out;
         }
 
@@ -151,6 +169,8 @@
     <div id="intro-screen">
         <img id="gift-box-image" src="https://i.ibb.co/Bh6rhww/Giftbox.png" alt="Hộp quà">
         <div id="prompt-text">Hộp quà đang rung rinh chờ được mở đó~ 🎁 Chạm nhẹ cái nà 😉💕</div>
+        <!-- THAY ĐỔI: Vị trí và nội dung của nút âm thanh -->
+        <button id="unmute-button">Play Sound 🔊</button>
         <div id="countdown"></div>
         <canvas id="fireworks-canvas"></canvas>
     </div>
@@ -182,29 +202,29 @@
         document.addEventListener('DOMContentLoaded', function() {
             
             let ytPlayer;
+            let audioEnabledByUser = false;
 
             function initializeYouTubePlayer() {
                 if (typeof YT !== 'undefined' && YT.Player) {
                     ytPlayer = new YT.Player('youtube-player', {
                         height: '0', width: '0', videoId: 'sSt1y8s9n6Y',
-                        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'sSt1y8s9n6Y' }
+                        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'sSt1y8s9n6Y' },
+                        events: { 'onReady': onPlayerReady }
                     });
                 } else {
                     setTimeout(initializeYouTubePlayer, 100);
                 }
             }
 
+            function onPlayerReady(event) {}
             initializeYouTubePlayer();
             
             function playSound(audioElement) {
-                if (audioElement && typeof audioElement.play === 'function') {
+                if (audioEnabledByUser && audioElement && typeof audioElement.play === 'function') {
                     audioElement.currentTime = 0;
                     const playPromise = audioElement.play();
                     if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            // Không cần hiển thị lỗi ra console để tránh gây nhiễu
-                            // console.error("Lỗi phát âm thanh:", error);
-                        });
+                        playPromise.catch(error => {});
                     }
                 }
             }
@@ -218,30 +238,40 @@
             const fireworkSound = document.getElementById('firework-sound');
             const myCanvas = document.getElementById('myCanvas');
             const tagsList = document.getElementById('tags');
+            const unmuteButton = document.getElementById('unmute-button');
 
-            if (!introScreen || !mainContent || !giftBoxImage || !myCanvas || !tagsList) {
+            if (!introScreen || !mainContent || !giftBoxImage || !myCanvas || !tagsList || !unmuteButton) {
                 console.error("Thiếu một hoặc nhiều phần tử HTML quan trọng. Script sẽ không chạy.");
                 document.body.innerHTML = '<h1>Lỗi tải trang. Vui lòng thử lại.</h1>';
                 return;
             }
 
+            unmuteButton.addEventListener('click', function() {
+                if (audioEnabledByUser) return;
+                audioEnabledByUser = true;
+                
+                countdownSound.play().catch(() => {});
+                countdownSound.pause();
+                countdownSound.currentTime = 0;
+
+                unmuteButton.style.opacity = '0';
+                unmuteButton.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    unmuteButton.style.display = 'none';
+                }, 500);
+            });
+
             let boxClicked = false;
-            let audioUnlocked = false; // Biến để kiểm tra đã mở khóa âm thanh chưa
 
             giftBoxImage.addEventListener('mousedown', () => {
                 if (boxClicked) return;
-
-                // SỬA LỖI: Mở khóa âm thanh trong lần tương tác đầu tiên của người dùng
-                if (!audioUnlocked) {
-                    // Chạy và dừng ngay lập tức các file âm thanh để trình duyệt cho phép phát về sau
-                    countdownSound.play().catch(()=>{});
-                    countdownSound.pause();
-                    fireworkSound.play().catch(()=>{});
-                    fireworkSound.pause();
-                    audioUnlocked = true;
-                }
-
                 boxClicked = true;
+                
+                if (unmuteButton) {
+                   unmuteButton.style.opacity = '0';
+                   unmuteButton.style.pointerEvents = 'none';
+                }
+                
                 giftBoxImage.style.animation = 'none';
                 giftBoxImage.style.transition = "opacity 0.5s, transform 0.5s";
                 promptText.style.transition = "opacity 0.5s";
@@ -252,6 +282,7 @@
                 setTimeout(() => {
                     if (giftBoxImage) giftBoxImage.style.display = 'none';
                     if (promptText) promptText.style.display = 'none';
+                    if (unmuteButton) unmuteButton.style.display = 'none'; // Đảm bảo nút cũng biến mất
                     startCountdown();
                 }, 500);
             });
@@ -331,7 +362,7 @@
             }
 
             function startMainApp() {
-                if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                if (audioEnabledByUser && ytPlayer && typeof ytPlayer.playVideo === 'function') {
                     ytPlayer.playVideo();
                 }
                 
