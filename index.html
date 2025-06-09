@@ -169,7 +169,6 @@
     <div id="intro-screen">
         <img id="gift-box-image" src="https://i.ibb.co/Bh6rhww/Giftbox.png" alt="Hộp quà">
         <div id="prompt-text">Hộp quà đang rung rinh chờ được mở đó~ 🎁 Chạm nhẹ cái nà 😉💕</div>
-        <!-- THAY ĐỔI: Vị trí và nội dung của nút âm thanh -->
         <button id="unmute-button">Play Sound 🔊</button>
         <div id="countdown"></div>
         <canvas id="fireworks-canvas"></canvas>
@@ -206,9 +205,10 @@
 
             function initializeYouTubePlayer() {
                 if (typeof YT !== 'undefined' && YT.Player) {
+                    // THAY ĐỔI: Thay ID video mới
                     ytPlayer = new YT.Player('youtube-player', {
-                        height: '0', width: '0', videoId: 'sSt1y8s9n6Y',
-                        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'sSt1y8s9n6Y' },
+                        height: '0', width: '0', videoId: 'N-16s0I3c2I',
+                        playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'N-16s0I3c2I' },
                         events: { 'onReady': onPlayerReady }
                     });
                 } else {
@@ -282,7 +282,7 @@
                 setTimeout(() => {
                     if (giftBoxImage) giftBoxImage.style.display = 'none';
                     if (promptText) promptText.style.display = 'none';
-                    if (unmuteButton) unmuteButton.style.display = 'none'; // Đảm bảo nút cũng biến mất
+                    if (unmuteButton) unmuteButton.style.display = 'none'; 
                     startCountdown();
                 }, 500);
             });
