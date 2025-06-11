@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Project: Puppy 12.06</title>
+    <title>Dự án: Puppy 12.06</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
         /* CSS để tạo giao diện đẹp */
         body, html {
@@ -36,6 +39,17 @@
             max-width: 60vw;
             cursor: pointer;
             animation: shake 1.5s ease-in-out infinite;
+            z-index: 10001;
+        }
+
+        #cake-image {
+            display: none; /* Bắt đầu ẩn */
+            position: absolute;
+            width: 250px;
+            max-width: 60vw;
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
         }
 
         @keyframes shake {
@@ -44,25 +58,6 @@
             75% { transform: rotate(4deg) scale(1.02); }
         }
         
-        /* CSS cho nút bật âm thanh mới */
-        #unmute-button {
-            background-color: #ff69b4;
-            color: white;
-            border: 2px solid white;
-            border-radius: 50px;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s, opacity 0.5s ease-out;
-            box-shadow: 0 0 20px #ff69b4;
-            margin-top: 25px; /* Thêm khoảng cách với dòng text ở trên */
-        }
-        #unmute-button:hover {
-            transform: scale(1.05);
-            background-color: #ff85c1;
-        }
-
         #prompt-text {
             color: #fff;
             text-align: center;
@@ -74,8 +69,8 @@
         }
 
         @keyframes fadeInText {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         #countdown {
@@ -100,7 +95,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: none; /* Ban đầu ẩn đi */
+            display: none; /* Ban đầu ẩn */
         }
 
         /* --- NỘI DUNG CHÍNH --- */
@@ -145,16 +140,45 @@
             transition: opacity 0.6s ease-in-out;
         }
 
-        #center-image {
+        #center-content-wrapper {
             position: absolute;
             z-index: 10;
             pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        #center-image img {
-            width: 200px;
-            height: 300px;
+
+        #center-content-wrapper img {
+            width: 250px;
+            height: 350px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
+        }
+
+        #text-group {
+            text-align: center;
+        }
+        
+        #main-text { /* For 12.06 */
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(4rem, 12vw, 7rem);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 8px #ff69b4, 0 0 16px #ff69b4, 0 0 24px #ff00ff, 0 0 32px #ff00ff;
+            line-height: 1;
+        }
+
+        #sub-text { /* For Puppy */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            color: #ffffff;
+            text-shadow: 0 0 5px #ff69b4;
+            letter-spacing: 2px;
+            margin-bottom: -15px;
+            font-weight: bold; /* In đậm chữ Puppy */
         }
         
         #tags { display: none; }
@@ -168,8 +192,8 @@
     <!-- Màn hình chờ -->
     <div id="intro-screen">
         <img id="gift-box-image" src="https://projectpuppy1206.github.io/img/Giftbox.png" alt="Hộp quà">
+        <img id="cake-image" src="https://projectpuppy1206.github.io/img/banhkem.png" alt="Bánh sinh nhật">
         <div id="prompt-text">Hộp quà đang rung rinh chờ được mở đó~ 🎁 Chạm nhẹ cái nà 😉💕</div>
-        <button id="unmute-button">Play Sound 🔊</button>
         <div id="countdown"></div>
         <canvas id="fireworks-canvas"></canvas>
     </div>
@@ -179,8 +203,12 @@
         <div id="youtube-player" style="display: none;"></div>
         <canvas id="hearts-canvas"></canvas>
         <div id="myCanvasContainer">
-            <div id="center-image">
-                 <img src="https://projectpuppy1206.github.io/img/Puppya.jpg" alt="User Image">
+            <div id="center-content-wrapper">
+                 <img src="https://projectpuppy1206.github.io/img/Puppya.jpg" alt="Ảnh người dùng">
+                 <div id="text-group">
+                    <div id="main-text">12.06</div>
+                    <div id="sub-text">Puppy</div>
+                 </div>
             </div>
             <canvas width="800" height="800" id="myCanvas">
                 <p>Rất tiếc, trình duyệt của bạn không hỗ trợ HTML5 canvas.</p>
@@ -188,7 +216,19 @@
         </div>
         <div id="tags">
             <ul>
-                <li><a href="#">我爱你</a></li><li><a href="#">I love you</a></li><li><a href="#">唯爱你至死不渝</a></li><li><a href="#">520快乐</a></li><li><a href="#">Gamer</a></li><li><a href="#">Hacker</a></li><li><a href="#">Code</a></li><li><a href="#">Design</a></li><li><a href="#">3D</a></li><li><a href="#">JavaScript</a></li><li><a href="#">HTML5</a></li><li><a href="#">CSS3</a></li><li><a href="#">Creative</a></li><li><a href="#">Art</a></li><li><a href="#">Inspiration</a></li>
+                <li><a href="#">Happy Birthday! 🎂 Wishing you a year full of smiles and sweet moments! 🍭</a></li>
+                <li><a href="#">Wishing you happiness, youth, and love — always! 🌼</a></li>
+                <li><a href="#">May your new age be bright, full of laughter and love! ✨</a></li>
+                <li><a href="#">Happy Birthday! 🎂 Eat more cake, make fewer plans! 😆</a></li>
+                <li><a href="#">Don’t worry, you're not aging — you're just becoming vintage! ?🎁</a></li>
+                <li><a href="#">So grateful to have you in my life 💖 Happy Birthday!</a></li>
+                <li><a href="#">You deserve all the good things in this world 🌍💫</a></li>
+                <li><a href="#">You make life less lonely — thank you for being here 💛</a></li>
+                <li><a href="#">I wish you happiness not just today, but every day 🌻</a></li>
+                <li><a href="#">More age, more stories, more smiles! 😄🎉</a></li>
+                <li><a href="#">You're a gift to this world 🎁 Happy Birthday!</a></li>
+                <li><a href="#">Lots of love to you today and always 💌🎂</a></li>
+                <li><a href="#">Growing older, glowing brighter! ✨🌈</a></li>
             </ul>
         </div>
     </div>
@@ -205,7 +245,7 @@
 
             function initializeYouTubePlayer() {
                 if (typeof YT !== 'undefined' && YT.Player) {
-                    // THAY ĐỔI: Thay ID video mới
+                    // THAY ĐỔI: ID video mới
                     ytPlayer = new YT.Player('youtube-player', {
                         height: '0', width: '0', videoId: 'N-16s0I3c2I',
                         playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'N-16s0I3c2I' },
@@ -232,34 +272,19 @@
             const introScreen = document.getElementById('intro-screen');
             const mainContent = document.getElementById('main-content');
             const giftBoxImage = document.getElementById('gift-box-image');
+            const cakeImage = document.getElementById('cake-image');
             const promptText = document.getElementById('prompt-text');
             const countdownEl = document.getElementById('countdown');
             const countdownSound = document.getElementById('countdown-sound');
             const fireworkSound = document.getElementById('firework-sound');
             const myCanvas = document.getElementById('myCanvas');
             const tagsList = document.getElementById('tags');
-            const unmuteButton = document.getElementById('unmute-button');
 
-            if (!introScreen || !mainContent || !giftBoxImage || !myCanvas || !tagsList || !unmuteButton) {
+            if (!introScreen || !mainContent || !giftBoxImage || !myCanvas || !tagsList) {
                 console.error("Thiếu một hoặc nhiều phần tử HTML quan trọng. Script sẽ không chạy.");
                 document.body.innerHTML = '<h1>Lỗi tải trang. Vui lòng thử lại.</h1>';
                 return;
             }
-
-            unmuteButton.addEventListener('click', function() {
-                if (audioEnabledByUser) return;
-                audioEnabledByUser = true;
-                
-                countdownSound.play().catch(() => {});
-                countdownSound.pause();
-                countdownSound.currentTime = 0;
-
-                unmuteButton.style.opacity = '0';
-                unmuteButton.style.pointerEvents = 'none';
-                setTimeout(() => {
-                    unmuteButton.style.display = 'none';
-                }, 500);
-            });
 
             let boxClicked = false;
 
@@ -267,11 +292,8 @@
                 if (boxClicked) return;
                 boxClicked = true;
                 
-                if (unmuteButton) {
-                   unmuteButton.style.opacity = '0';
-                   unmuteButton.style.pointerEvents = 'none';
-                }
-                
+                audioEnabledByUser = true;
+
                 giftBoxImage.style.animation = 'none';
                 giftBoxImage.style.transition = "opacity 0.5s, transform 0.5s";
                 promptText.style.transition = "opacity 0.5s";
@@ -280,9 +302,8 @@
                 promptText.style.opacity = '0';
                 
                 setTimeout(() => {
-                    if (giftBoxImage) giftBoxImage.style.display = 'none';
-                    if (promptText) promptText.style.display = 'none';
-                    if (unmuteButton) unmuteButton.style.display = 'none'; 
+                    giftBoxImage.style.display = 'none';
+                    promptText.style.display = 'none';
                     startCountdown();
                 }, 500);
             });
@@ -309,8 +330,15 @@
 
             function startFireworks() {
                 const fireworksCanvas = document.getElementById('fireworks-canvas');
-                if (!fireworksCanvas) return;
+                if (!fireworksCanvas || !cakeImage) return;
 
+                fireworksCanvas.style.display = 'block';
+
+                // Hiện ảnh bánh kem
+                cakeImage.style.display = 'block';
+                setTimeout(() => cakeImage.style.opacity = '1', 10);
+                
+                // Hẹn giờ chuyển cảnh
                 setTimeout(() => {
                     clearInterval(launchInterval);
                     introScreen.style.opacity = '0';
@@ -320,9 +348,8 @@
                         requestAnimationFrame(() => mainContent.style.opacity = '1');
                         startMainApp();
                     }, 1500);
-                }, 3500); 
+                }, 4000); 
                 
-                fireworksCanvas.style.display = 'block';
                 const f_ctx = fireworksCanvas.getContext('2d');
                 fireworksCanvas.width = window.innerWidth;
                 fireworksCanvas.height = window.innerHeight;
@@ -386,7 +413,7 @@
                             shadow: colors[colorIndex].text,
                             reverse: true,
                             depth: 0.8,
-                            maxSpeed: 0.05,
+                            maxSpeed: 0.02, 
                             textHeight: 25,
                             shadowBlur: 10,
                             dragControl: true,
@@ -412,7 +439,7 @@
                                     console.error("Lỗi khi khởi động lại TagCanvas:", e);
                                 }
                             }, 600);
-                        }, 7000); 
+                        }, 10000); 
 
                     } else {
                         console.error("Thư viện TagCanvas chưa được tải.");
