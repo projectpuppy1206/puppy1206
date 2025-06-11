@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Happy Birthday Puppy 12.06</title>
+    <title>appy Birthday Puppy 12.06</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -245,7 +245,6 @@
 
             function initializeYouTubePlayer() {
                 if (typeof YT !== 'undefined' && YT.Player) {
-                    // THAY ĐỔI: ID video mới
                     ytPlayer = new YT.Player('youtube-player', {
                         height: '0', width: '0', videoId: 'N-16s0I3c2I',
                         playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'N-16s0I3c2I' },
@@ -291,16 +290,13 @@
             giftBoxImage.addEventListener('mousedown', () => {
                 if (boxClicked) return;
                 boxClicked = true;
-                
                 audioEnabledByUser = true;
-
                 giftBoxImage.style.animation = 'none';
                 giftBoxImage.style.transition = "opacity 0.5s, transform 0.5s";
                 promptText.style.transition = "opacity 0.5s";
                 giftBoxImage.style.transform = 'scale(1.2)';
                 giftBoxImage.style.opacity = '0';
                 promptText.style.opacity = '0';
-                
                 setTimeout(() => {
                     giftBoxImage.style.display = 'none';
                     promptText.style.display = 'none';
@@ -314,7 +310,6 @@
                 let count = 3;
                 countdownEl.textContent = count;
                 playSound(countdownSound); 
-
                 const countdownInterval = setInterval(() => {
                     count--;
                     if (count > 0) {
@@ -333,12 +328,9 @@
                 if (!fireworksCanvas || !cakeImage) return;
 
                 fireworksCanvas.style.display = 'block';
-
-                // Hiện ảnh bánh kem
                 cakeImage.style.display = 'block';
                 setTimeout(() => cakeImage.style.opacity = '1', 10);
                 
-                // Hẹn giờ chuyển cảnh
                 setTimeout(() => {
                     clearInterval(launchInterval);
                     introScreen.style.opacity = '0';
@@ -354,7 +346,6 @@
                 fireworksCanvas.width = window.innerWidth;
                 fireworksCanvas.height = window.innerHeight;
                 let fireworks = [], particles = [], currentHue = Math.random() * 360;
-                
                 const PARTICLE_COUNT = 150; 
                 const LAUNCH_INTERVAL = 500;
 
@@ -388,6 +379,37 @@
                 fireworksLoop();
             }
 
+            // --- Di chuyển các biến và hàm dùng chung ra ngoài ---
+            const colors = [
+                { text: '#ff69b4', outline: '#ff00ff' }, 
+                { text: '#00FFFF', outline: '#00BFFF' }, 
+                { text: '#FFFFFF', outline: '#CCCCCC' },
+                { text: '#66FF66', outline: '#008000' }
+            ];
+            let colorIndex = 0;
+
+            const getTagCanvasOptions = () => {
+                // Tính toán kích thước chữ co giãn cho TagCanvas
+                const minTextHeight = 22; // Tăng kích thước tối thiểu
+                const maxTextHeight = 35;
+                const preferredTextHeight = window.innerWidth / 35; // Giảm hệ số chia để chữ to hơn
+                const calculatedTextHeight = Math.max(minTextHeight, Math.min(preferredTextHeight, maxTextHeight));
+
+                return {
+                    textColour: colors[colorIndex].text,
+                    outlineColour: colors[colorIndex].outline,
+                    shadow: colors[colorIndex].text,
+                    reverse: true,
+                    depth: 0.8,
+                    maxSpeed: 0.02, 
+                    textHeight: calculatedTextHeight,
+                    shadowBlur: 10,
+                    dragControl: true,
+                    initial: [0.1, -0.1],
+                    shape: 'heart'
+                };
+            };
+
             function startMainApp() {
                 if (audioEnabledByUser && ytPlayer && typeof ytPlayer.playVideo === 'function') {
                     ytPlayer.playVideo();
@@ -398,38 +420,8 @@
                         const canvasId = 'myCanvas';
                         const tagsId = 'tags';
                         const myCanvasElement = document.getElementById(canvasId);
-
-                        const colors = [
-                            { text: '#ff69b4', outline: '#ff00ff' }, 
-                            { text: '#00FFFF', outline: '#00BFFF' }, 
-                            { text: '#FFFFFF', outline: '#CCCCCC' },
-                            { text: '#66FF66', outline: '#008000' }
-                        ];
-                        let colorIndex = 0;
                         
-                        const getOptions = () => {
-                            // Tính toán kích thước chữ co giãn cho TagCanvas
-                            const minTextHeight = 15;
-                            const maxTextHeight = 35;
-                            const preferredTextHeight = window.innerWidth / 40;
-                            const calculatedTextHeight = Math.max(minTextHeight, Math.min(preferredTextHeight, maxTextHeight));
-
-                            return {
-                                textColour: colors[colorIndex].text,
-                                outlineColour: colors[colorIndex].outline,
-                                shadow: colors[colorIndex].text,
-                                reverse: true,
-                                depth: 0.8,
-                                maxSpeed: 0.02, 
-                                textHeight: calculatedTextHeight, // Sử dụng giá trị đã tính toán
-                                shadowBlur: 10,
-                                dragControl: true,
-                                initial: [0.1, -0.1],
-                                shape: 'heart'
-                            };
-                        };
-
-                        TagCanvas.Start(canvasId, tagsId, getOptions());
+                        TagCanvas.Start(canvasId, tagsId, getTagCanvasOptions());
 
                         const canvasContainer = document.getElementById('myCanvasContainer');
                         canvasContainer.addEventListener('mousedown', () => TagCanvas.Pause(canvasId));
@@ -437,11 +429,10 @@
 
                         setInterval(() => {
                             myCanvasElement.style.opacity = 0;
-                            
                             setTimeout(() => {
                                 try {
                                     colorIndex = (colorIndex + 1) % colors.length;
-                                    TagCanvas.Start(canvasId, tagsId, getOptions());
+                                    TagCanvas.Start(canvasId, tagsId, getTagCanvasOptions());
                                     myCanvasElement.style.opacity = 1;
                                 } catch (e) {
                                     console.error("Lỗi khi khởi động lại TagCanvas:", e);
@@ -476,7 +467,8 @@
                 setupHeartsCanvas();
                 if (typeof TagCanvas !== 'undefined') { 
                     try { 
-                        TagCanvas.Start('myCanvas', 'tags', getOptions());
+                        // Khởi động lại TagCanvas với kích thước chữ mới
+                        TagCanvas.Start('myCanvas', 'tags', getTagCanvasOptions());
                     } catch(e) {
                         console.error("Lỗi khi cập nhật TagCanvas lúc thay đổi kích thước:", e);
                     } 
