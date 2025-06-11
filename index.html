@@ -407,19 +407,27 @@
                         ];
                         let colorIndex = 0;
                         
-                        const getOptions = () => ({
-                            textColour: colors[colorIndex].text,
-                            outlineColour: colors[colorIndex].outline,
-                            shadow: colors[colorIndex].text,
-                            reverse: true,
-                            depth: 0.8,
-                            maxSpeed: 0.02, 
-                            textHeight: 25,
-                            shadowBlur: 10,
-                            dragControl: true,
-                            initial: [0.1, -0.1],
-                            shape: 'heart'
-                        });
+                        const getOptions = () => {
+                            // Tính toán kích thước chữ co giãn cho TagCanvas
+                            const minTextHeight = 15;
+                            const maxTextHeight = 35;
+                            const preferredTextHeight = window.innerWidth / 40;
+                            const calculatedTextHeight = Math.max(minTextHeight, Math.min(preferredTextHeight, maxTextHeight));
+
+                            return {
+                                textColour: colors[colorIndex].text,
+                                outlineColour: colors[colorIndex].outline,
+                                shadow: colors[colorIndex].text,
+                                reverse: true,
+                                depth: 0.8,
+                                maxSpeed: 0.02, 
+                                textHeight: calculatedTextHeight, // Sử dụng giá trị đã tính toán
+                                shadowBlur: 10,
+                                dragControl: true,
+                                initial: [0.1, -0.1],
+                                shape: 'heart'
+                            };
+                        };
 
                         TagCanvas.Start(canvasId, tagsId, getOptions());
 
@@ -465,10 +473,14 @@
             function setupHeartsCanvas() { heartsCanvas.width = window.innerWidth; heartsCanvas.height = window.innerHeight; initHearts(); }
             
             window.addEventListener('resize', () => { 
-                if (typeof TagCanvas !== 'undefined') { 
-                    try { TagCanvas.Resize('myCanvas'); } catch(e) {} 
-                } 
                 setupHeartsCanvas();
+                if (typeof TagCanvas !== 'undefined') { 
+                    try { 
+                        TagCanvas.Start('myCanvas', 'tags', getOptions());
+                    } catch(e) {
+                        console.error("Lỗi khi cập nhật TagCanvas lúc thay đổi kích thước:", e);
+                    } 
+                } 
             });
         });
     </script>
